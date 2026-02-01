@@ -695,13 +695,32 @@ btnStart.addEventListener("click", () => {
 });
 btnRetry.addEventListener("click", () => retryLevel());
 btnNext.addEventListener("click", () => {
-  // if final victory screen, allow replay
-  if (levelIndex >= LEVELS.length - 1 && !running) {
-    levelIndex = 0;
-    startGame();
+  // If you're already at the last level, show victory and stop.
+  if (levelIndex >= LEVELS.length - 1) {
+    running = false;
+    setButtons();
+    setMessage(
+      "YOU DID IT!\n" +
+      "Dad and Michael got everyone home!\n" +
+      "Mom, Catalina, and Tinsley are safe.\n\n" +
+      "Press Start to play again!"
+    );
+    drawScene(); // draw final state
     return;
   }
-  nextLevel();
+
+  // Move to next level
+  levelIndex = levelIndex + 1;
+
+  // IMPORTANT: restart the game loop + force a redraw
+  running = true;
+  btnNext.disabled = true;
+  setButtons();
+
+  loadLevel(levelIndex);
+  drawScene();                 // ✅ force canvas to show new level immediately
+  lastTime = performance.now();
+  requestAnimationFrame(loop); // ✅ restart loop
 });
 
 // Initial screen
