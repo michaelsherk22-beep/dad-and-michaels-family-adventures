@@ -767,40 +767,12 @@ if (item) {
   ctx.font = "700 12px system-ui";
   ctx.fillText(item.label, item.x - 6, item.y - 8);
 }
+   
+// Dad (buddy)
+drawCharacter(dad.x, dad.y, dad.w, dad.h, "#4fd1ff", "Dad");
 
-  // shadow
-  ctx.globalAlpha = 0.25;
-  ctx.fillStyle = "#000";
-  ctx.beginPath();
-  ctx.ellipse(x + w/2, y + h + 6, w * 0.45, h * 0.18, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
-
-  // fallback body
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, 8);
-  ctx.fill();
-
-  // image (if loaded)
-  if (img) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(x, y, w, h, 8);
-    ctx.clip();
-    ctx.drawImage(img, x, y, w, h);
-    ctx.restore();
-  }
-
-  // label
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.font = "800 10px system-ui";
-  const tw = ctx.measureText(label).width;
-  ctx.fillRect(x + w/2 - tw/2 - 6, y - 16, tw + 12, 14);
-  ctx.fillStyle = "#fff";
-  ctx.fillText(label, x + w/2 - tw/2, y - 5);
-}
-
+// Player (Michael)
+drawCharacter(player.x, player.y, player.w, player.h, "#ffd24f", "Michael");
 
   // Monster
   if (monster.active) {
@@ -821,20 +793,39 @@ if (item) {
 }
 
 function drawCharacter(x, y, w, h, color, label) {
+  const img =
+    label === "Michael" ? sprites.michael :
+    label === "Dad" ? sprites.dad :
+    null;
+
+  // fallback body (shows even if image fails)
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, 8);
   ctx.fill();
 
-  ctx.fillStyle = "#0b0c10";
+  // sprite image (if loaded)
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 8);
+    ctx.clip();
+    ctx.drawImage(img, x, y, w, h);
+    ctx.restore();
+  }
+
+  // label
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
   ctx.font = "800 10px system-ui";
-  ctx.fillText(label, x - 2, y - 6);
+  const tw = ctx.measureText(label).width;
+  ctx.fillRect(x + w/2 - tw/2 - 6, y - 16, tw + 12, 14);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(label, x + w/2 - tw/2, y - 5);
 }
 
 function drawMonster(x, y, w, h) {
   const img = sprites.monster;
 
-  // if image exists, draw it clipped to a blob
   if (img) {
     ctx.save();
     ctx.beginPath();
@@ -844,6 +835,12 @@ function drawMonster(x, y, w, h) {
     ctx.restore();
     return;
   }
+
+  ctx.fillStyle = "rgba(140, 255, 180, 0.95)";
+  ctx.beginPath();
+  ctx.ellipse(x + w/2, y + h/2, w/2, h/2, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
 
   // fallback goo blob
   ctx.fillStyle = "rgba(140, 255, 180, 0.95)";
