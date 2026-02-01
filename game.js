@@ -838,18 +838,11 @@ function drawMonster(x, y, w, h) {
     return;
   }
 
-  ctx.fillStyle = "rgba(140, 255, 180, 0.95)";
-  ctx.beginPath();
-  ctx.ellipse(x + w/2, y + h/2, w/2, h/2, 0, 0, Math.PI * 2);
-  ctx.fill();
-}
-
   // fallback goo blob
   ctx.fillStyle = "rgba(140, 255, 180, 0.95)";
   ctx.beginPath();
   ctx.ellipse(x + w/2, y + h/2, w/2, h/2, 0, 0, Math.PI * 2);
   ctx.fill();
-}
 }
 
 CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
