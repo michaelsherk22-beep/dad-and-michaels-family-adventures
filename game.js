@@ -19,6 +19,49 @@ const btnNext = document.getElementById("btn-next");
 const W = canvas.width;
 const H = canvas.height;
 
+// --- Shared art assets (same for everyone) ---
+const ART = {
+  michael: "assets/michael.png",
+  dad: "assets/dad.png",
+  mom: "assets/mom.png",
+  catalina: "assets/catalina.png",
+  tinsley: "assets/tinsley.png",
+  flashlight: "assets/flashlight.png",
+  home: "assets/home.png",
+  monster: "assets/gluegluehead.png",
+};
+
+const sprites = {};     // loaded Image objects end up here
+let spritesReady = false;
+
+function loadSprite(key, url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ key, img, ok: true });
+    img.onerror = () => resolve({ key, img: null, ok: false });
+    img.src = url;
+  });
+}
+
+async function preloadSprites() {
+  const results = await Promise.all(
+    Object.entries(ART).map(([key, url]) => loadSprite(key, url))
+  );
+
+  for (const r of results) sprites[r.key] = r.img;
+
+  spritesReady = true;
+
+  const failed = results.filter(r => !r.ok).map(r => `${r.key}: ${ART[r.key]}`);
+  if (failed.length) {
+    setMessage(
+      "Some images did not load:\n" +
+      failed.join("\n") +
+      "\n\nFix filenames in /assets (case sensitive)."
+    );
+  }
+}
+
 function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 function rectsOverlap(a, b) {
@@ -652,7 +695,24 @@ function drawScene() {
   ctx.fillText(LEVELS[levelIndex].title, 16, 28);
 
   // door/home goal
-  if (goalZone) {
+  // door/home goal
+
+   if (goalZone) {
+  const isHome = goalZone.label === "HOME";
+  const img = isHome ? sprites.home : null;
+
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(goalZone.x, goalZone.y, goalZone.w, goalZone.h, 12);
+    ctx.clip();
+    ctx.drawImage(img, goalZone.x, goalZone.y, goalZone.w, goalZone.h);
+    ctx.restore();
+
+    ctx.strokeStyle = theme.accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(goalZone.x, goalZone.y, goalZone.w, goalZone.h);
+  } else {
     ctx.fillStyle = "rgba(255,255,255,0.12)";
     ctx.fillRect(goalZone.x, goalZone.y, goalZone.w, goalZone.h);
     ctx.strokeStyle = theme.accent;
@@ -663,6 +723,7 @@ function drawScene() {
     ctx.font = "700 14px system-ui";
     ctx.fillText(goalZone.label, goalZone.x + 10, goalZone.y + 22);
   }
+}
 
   // checkpoints
   for (const cp of checkpoints) {
@@ -686,20 +747,60 @@ function drawScene() {
     ctx.strokeRect(hz.x, hz.y, hz.w, hz.h);
   }
 
-  // item
-  if (item) {
+ // item
+if (item) {
+  const img = (item.kind === "flashlight") ? sprites.flashlight : null;
+
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(item.x, item.y, item.w, item.h, 8);
+    ctx.clip();
+    ctx.drawImage(img, item.x, item.y, item.w, item.h);
+    ctx.restore();
+  } else {
     ctx.fillStyle = theme.accent;
     ctx.fillRect(item.x, item.y, item.w, item.h);
-    ctx.fillStyle = "#000";
-    ctx.font = "700 12px system-ui";
-    ctx.fillText(item.label, item.x - 6, item.y - 8);
   }
 
-  // Dad (buddy)
-  drawCharacter(dad.x, dad.y, dad.w, dad.h, "#4fd1ff", "Dad");
+  ctx.fillStyle = "rgba(0,0,0,0.65)";
+  ctx.font = "700 12px system-ui";
+  ctx.fillText(item.label, item.x - 6, item.y - 8);
+}
 
-  // Player (Michael)
-  drawCharacter(player.x, player.y, player.w, player.h, "#ffd24f", "Michael");
+  // shadow
+  ctx.globalAlpha = 0.25;
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.ellipse(x + w/2, y + h + 6, w * 0.45, h * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // fallback body
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, 8);
+  ctx.fill();
+
+  // image (if loaded)
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 8);
+    ctx.clip();
+    ctx.drawImage(img, x, y, w, h);
+    ctx.restore();
+  }
+
+  // label
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.font = "800 10px system-ui";
+  const tw = ctx.measureText(label).width;
+  ctx.fillRect(x + w/2 - tw/2 - 6, y - 16, tw + 12, 14);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(label, x + w/2 - tw/2, y - 5);
+}
+
 
   // Monster
   if (monster.active) {
@@ -731,27 +832,25 @@ function drawCharacter(x, y, w, h, color, label) {
 }
 
 function drawMonster(x, y, w, h) {
-  // Glue Glue Head: goo blob with eyes
+  const img = sprites.monster;
+
+  // if image exists, draw it clipped to a blob
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(x + w/2, y + h/2, w/2, h/2, 0, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(img, x, y, w, h);
+    ctx.restore();
+    return;
+  }
+
+  // fallback goo blob
   ctx.fillStyle = "rgba(140, 255, 180, 0.95)";
   ctx.beginPath();
   ctx.ellipse(x + w/2, y + h/2, w/2, h/2, 0, 0, Math.PI * 2);
   ctx.fill();
-
-  // eyes
-  ctx.fillStyle = "#0b0c10";
-  ctx.beginPath(); ctx.arc(x + 12, y + 14, 4, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x + 22, y + 14, 4, 0, Math.PI*2); ctx.fill();
-
-  // grin
-  ctx.strokeStyle = "#0b0c10";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(x + 17, y + 22, 8, 0.2, Math.PI - 0.2);
-  ctx.stroke();
-
-  ctx.fillStyle = "#fff";
-  ctx.font = "800 10px system-ui";
-  ctx.fillText("Glue Glue Head", x - 18, y - 6);
+}
 }
 
 CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
@@ -827,15 +926,19 @@ btnNext.addEventListener("click", () => {
 });
 
 // Initial screen
-function init() {
+async function init() {
+  setMessage("Loading game art...");
+  setButtons();
+  setHUD();
+
+  await preloadSprites();  // ✅ load images from /assets
+  drawScene();
+
   setMessage(
     "Press Start!\n\n" +
     "Story: Monsters behind the elevator are chasing.\n" +
     "Dad and Michael must rescue Mom, Catalina, and Tinsley — then run home!\n\n" +
     "Tip: Touch checkpoint pads to save your spot."
   );
-  setButtons();
-  setHUD();
-  drawScene();
 }
 init();
