@@ -68,6 +68,9 @@ const THEMES = [
 let running = false;
 let levelIndex = 0;
 let lastTime = 0;
+// Click/touch-to-move target
+let pointerMoveActive = false;
+let pointerTarget = { x: 0, y: 0 };
 
 const player = {
   x: 70, y: 420, w: 28, h: 28,
@@ -366,6 +369,67 @@ function loadLevel(i) {
   setHUD();
 }
 
+function getCanvasPointFromEvent(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY
+  };
+}
+
+// --- Mouse: click/drag to move ---
+canvas.addEventListener("mousedown", (e) => {
+  const p = getCanvasPointFromEvent(e);
+  setPointerTarget(p.x, p.y);
+});
+
+window.addEventListener("mouseup", () => {
+  // optional: stop when mouse released
+  // pointerMoveActive = false;
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (!pointerMoveActive) return;
+  // If you want "click-and-drag follows mouse"
+  const p = getCanvasPointFromEvent(e);
+  setPointerTarget(p.x, p.y);
+});
+
+// --- Touch: tap/drag to move ---
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault(); // prevents page scrolling while playing
+  const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  setPointerTarget((t.clientX - rect.left) * scaleX, (t.clientY - rect.top) * scaleY);
+}, { passive: false });
+
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  setPointerTarget((t.clientX - rect.left) * scaleX, (t.clientY - rect.top) * scaleY);
+}, { passive: false });
+
+canvas.addEventListener("touchend", (e) => {
+  // optional: stop when finger lifts
+  // pointerMoveActive = false;
+}, { passive: false });
+
+function setPointerTarget(x, y) {
+  pointerTarget.x = clamp(x, 8, W - player.w - 8);
+  pointerTarget.y = clamp(y, 8, H - player.h - 8);
+  pointerMoveActive = true;
+}
+
 function movePlayer(dt) {
   const vx = (keys.has("arrowright") || keys.has("d") ? 1 : 0) - (keys.has("arrowleft") || keys.has("a") ? 1 : 0);
   const vy = (keys.has("arrowdown") || keys.has("s") ? 1 : 0) - (keys.has("arrowup") || keys.has("w") ? 1 : 0);
@@ -380,6 +444,28 @@ function movePlayer(dt) {
   const mag = Math.hypot(dx, dy) || 1;
   const ux = dx / mag;
   const uy = dy / mag;
+     // If no keyboard/D-pad input, use click/touch-to-move
+  if (dx === 0 && dy === 0 && pointerMoveActive) {
+    const px = player.x + player.w / 2;
+    const py = player.y + player.h / 2;
+
+    const tx = pointerTarget.x + player.w / 2;
+    const ty = pointerTarget.y + player.h / 2;
+
+    const toX = tx - px;
+    const toY = ty - py;
+
+    const d = Math.hypot(toX, toY);
+
+    // If we're close enough, stop moving
+    if (d < 8) {
+      pointerMoveActive = false;
+    } else {
+      // Set movement direction toward target
+      dx = toX / d;
+      dy = toY / d;
+    }
+  }
 
   const speed = player.speed;
   const newPos = { x: player.x + ux * speed * dt, y: player.y + uy * speed * dt, w: player.w, h: player.h };
