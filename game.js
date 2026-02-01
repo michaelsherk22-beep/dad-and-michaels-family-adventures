@@ -431,20 +431,22 @@ function setPointerTarget(x, y) {
 }
 
 function movePlayer(dt) {
-  const vx = (keys.has("arrowright") || keys.has("d") ? 1 : 0) - (keys.has("arrowleft") || keys.has("a") ? 1 : 0);
-  const vy = (keys.has("arrowdown") || keys.has("s") ? 1 : 0) - (keys.has("arrowup") || keys.has("w") ? 1 : 0);
+  const vx =
+    (keys.has("arrowright") || keys.has("d") ? 1 : 0) -
+    (keys.has("arrowleft") || keys.has("a") ? 1 : 0);
+
+  const vy =
+    (keys.has("arrowdown") || keys.has("s") ? 1 : 0) -
+    (keys.has("arrowup") || keys.has("w") ? 1 : 0);
 
   const mx = (heldDirs.has("right") ? 1 : 0) - (heldDirs.has("left") ? 1 : 0);
   const my = (heldDirs.has("down") ? 1 : 0) - (heldDirs.has("up") ? 1 : 0);
 
-  const dx = vx + mx;
-  const dy = vy + my;
+  // IMPORTANT: let (not const) because pointer movement may change dx/dy
+  let dx = vx + mx;
+  let dy = vy + my;
 
-  // Normalize diagonal so it isn't faster
-  const mag = Math.hypot(dx, dy) || 1;
-  const ux = dx / mag;
-  const uy = dy / mag;
-     // If no keyboard/D-pad input, use click/touch-to-move
+  // If no keyboard/D-pad input, use click/touch-to-move
   if (dx === 0 && dy === 0 && pointerMoveActive) {
     const px = player.x + player.w / 2;
     const py = player.y + player.h / 2;
@@ -457,18 +459,29 @@ function movePlayer(dt) {
 
     const d = Math.hypot(toX, toY);
 
-    // If we're close enough, stop moving
-    if (d < 8) {
+    // If close enough, stop moving
+    if (d < 10) {
       pointerMoveActive = false;
+      dx = 0;
+      dy = 0;
     } else {
-      // Set movement direction toward target
       dx = toX / d;
       dy = toY / d;
     }
   }
 
+  // Normalize diagonal so it isn't faster (AFTER pointer movement)
+  const mag = Math.hypot(dx, dy) || 1;
+  const ux = dx / mag;
+  const uy = dy / mag;
+
   const speed = player.speed;
-  const newPos = { x: player.x + ux * speed * dt, y: player.y + uy * speed * dt, w: player.w, h: player.h };
+  const newPos = {
+    x: player.x + ux * speed * dt,
+    y: player.y + uy * speed * dt,
+    w: player.w,
+    h: player.h
+  };
 
   // Keep in bounds
   newPos.x = clamp(newPos.x, 8, W - player.w - 8);
@@ -479,6 +492,7 @@ function movePlayer(dt) {
   if (!obstacles.some(o => rectsOverlap(tryX, o))) {
     player.x = tryX.x;
   }
+
   const tryY = { ...newPos, x: player.x };
   if (!obstacles.some(o => rectsOverlap(tryY, o))) {
     player.y = tryY.y;
