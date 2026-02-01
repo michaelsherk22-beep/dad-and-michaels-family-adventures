@@ -20,16 +20,18 @@ const W = canvas.width;
 const H = canvas.height;
 
 // --- Shared art assets (same for everyone) ---
+const BASE = "/dad-and-michaels-family-adventures/assets/";
 const ART = {
-  michael: "assets/michael.png",
-  dad: "assets/dad.png",
-  mom: "assets/mom.png",
-  catalina: "assets/catalina.png",
-  tinsley: "assets/tinsley.png",
-  flashlight: "assets/flashlight.png",
-  home: "assets/home.png",
-  monster: "assets/gluegluehead.png",
+  michael: BASE + "michael.png",
+  dad: BASE + "dad.png",
+  mom: BASE + "mom.png",
+  catalina: BASE + "catalina.png",
+  tinsley: BASE + "tinsley.png",
+  flashlight: BASE + "flashlight.png",
+  home: BASE + "home.png",
+  monster: BASE + "gluegluehead.png",
 };
+
 
 const sprites = {};     // loaded Image objects end up here
 let spritesReady = false;
