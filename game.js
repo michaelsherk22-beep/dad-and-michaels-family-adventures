@@ -260,7 +260,10 @@ const LEVELS = [
         { x: 480, y: 240, w: 20, h: 300 },
         { x: 620, y: 0, w: 20, h: 320 },
         { x: 760, y: 220, w: 20, h: 320 },
-        { x: 860, y: 0, w: 10, h: 540 },
+        // Wall top (leaves a gap in the middle)
+         { x: 860, y: 0, w: 10, h: 160 },
+      // Wall bottom
+      { x: 860, y: 260, w: 10, h: 280 },
       ];
 
       hazards = [
