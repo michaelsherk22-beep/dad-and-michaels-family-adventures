@@ -931,6 +931,7 @@ async function init() {
   setHUD();
 
   await preloadSprites();  // ✅ load images from /assets
+   console.log("Sprites loaded:", sprites);
   drawScene();
 
   setMessage(
