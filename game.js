@@ -330,6 +330,10 @@ function retryLevel() {
   btnNext.disabled = true;
   setButtons();
   loadLevel(levelIndex);
+
+  // ✅ restart the loop
+  lastTime = performance.now();
+  requestAnimationFrame(loop);
 }
 
 function nextLevel() {
@@ -339,6 +343,10 @@ function nextLevel() {
     btnNext.disabled = true;
     setButtons();
     loadLevel(levelIndex);
+
+    // ✅ restart the loop
+    lastTime = performance.now();
+    requestAnimationFrame(loop);
   } else {
     // end screen
     setMessage(
