@@ -23,7 +23,7 @@ const W = canvas.width;
 const H = canvas.height;
 
 // --- Shared art assets (same for everyone) ---
-const BASE = "/dad-and-michaels-family-adventures/assets/";
+const BASE = "assets/";
 const ART = {
   michael: BASE + "michael.png",
   dad: BASE + "dad.png",
@@ -139,7 +139,8 @@ const monster = {
 
 let goalZone = null;        // where "home" is
 let item = null;            // flashlight, key, rescue token, etc.
-let rescueTarget = null;    // which family member (for levels 2-4)
+let npc = null;             // rescue character drawn on map
+let levelRescueKey = null;  // which rescue is required this level
 let obstacles = [];         // walls / blockers
 let hazards = [];           // goo puddles (touch = reset)
 let checkpoints = [];       // checkpoint pads
@@ -170,7 +171,7 @@ const LEVELS = [
       item = { kind: "flashlight", label: "Flashlight", x: 700, y: 410, w: 32, h: 32 };
       rescueTarget = null;
 
-      goalZone = { x: 860, y: 400, w: 70, h: 90, label: "Door" };
+      goalZone = { x: 860, y: 400, w: 70, h: 90, label: "Home" };
       setMessage(
         "Welcome!\n" +
         "You are Michael (5) and Dad is with you.\n" +
@@ -203,11 +204,12 @@ const LEVELS = [
         { x: 470, y: 470, w: 120, h: 22 },
       ];
 
-      item = { kind: "rescue", label: "Baby Bottle", x: 720, y: 260, w: 32, h: 32 };
-      rescueTarget = "tinsley";
+      item = null; // no rescue item anymore
+rescueTarget = "tinsley";
+npc = { x: 740, y: 260, w: 40, h: 40, key: rescueTarget };
 
-      goalZone = { x: 860, y: 240, w: 70, h: 110, label: "Door" };
-      setMessage("Level 2!\nFind Tinsley’s Baby Bottle to rescue Tinsley.");
+goalZone = { x: 860, y: 240, w: 80, h: 120, label: "HOME" };
+setMessage("Level 2!\nFind Tinsley and rescue her, then go HOME!");
     }
   },
   {
@@ -244,12 +246,12 @@ const LEVELS = [
         { x: 520, y: 480, w: 140, h: 20 },
       ];
 
-      item = { kind: "rescue", label: "Big Sis Key", x: 760, y: 120, w: 32, h: 32 };
-      rescueTarget = "catalina";
+     item = null;
+rescueTarget = "catalina";
+npc = { x: 760, y: 110, w: 40, h: 40, key: rescueTarget };
 
-      goalZone = { x: 860, y: 90, w: 70, h: 120, label: "Door" };
-
-      setMessage("Level 3!\nGlue Glue Head is nearby (but slow!).\nFind Catalina’s Key.");
+goalZone = { x: 860, y: 90, w: 80, h: 120, label: "HOME" };
+setMessage("Level 3!\nFind Catalina, rescue her, then go HOME!");
     }
   },
   {
@@ -281,12 +283,12 @@ const LEVELS = [
         { x: 780, y: 470, w: 120, h: 22 },
       ];
 
-      item = { kind: "rescue", label: "Mom’s Home Key", x: 800, y: 120, w: 32, h: 32 };
-      rescueTarget = "mom";
+      item = null;
+rescueTarget = "mom";
+npc = { x: 800, y: 120, w: 40, h: 40, key: rescueTarget };
 
-      goalZone = { x: 860, y: 90, w: 70, h: 140, label: "Door" };
-
-      setMessage("Level 4!\nGlue Glue Head is chasing a bit more.\nFind Mom’s Home Key!");
+goalZone = { x: 860, y: 90, w: 80, h: 140, label: "HOME" };
+setMessage("Level 4!\nFind Mom, rescue her, then go HOME!");
     }
   },
   {
@@ -632,12 +634,21 @@ function updateItem() {
   const pRect = { x: player.x, y: player.y, w: player.w, h: player.h };
   if (rectsOverlap(pRect, item)) {
     if (item.kind === "flashlight") {
-      setMessage("You found the Flashlight!\nNow you can keep going!");
-    } else if (item.kind === "rescue" && rescueTarget) {
-      family[rescueTarget].rescued = true;
-      setMessage(`You rescued ${family[rescueTarget].name}!\nKeep going to the door!`);
+      setMessage("You found the Flashlight!\nNow go rescue the family!");
     }
     item = null;
+    setHUD();
+  }
+}
+
+function updateNpcRescue() {
+  if (!npc || !npc.key) return;
+
+  const pRect = { x: player.x, y: player.y, w: player.w, h: player.h };
+  if (rectsOverlap(pRect, npc)) {
+    family[npc.key].rescued = true;
+    setMessage(`You rescued ${family[npc.key].name}!\nNow go HOME!`);
+    npc = null;
     setHUD();
   }
 }
@@ -646,37 +657,49 @@ function updateGoal() {
   const pRect = { x: player.x, y: player.y, w: player.w, h: player.h };
   if (!goalZone) return;
 
-  // Require collecting item (for levels 1-4) or all rescues by end (level 5 can be just reach home)
   const isFinal = (levelIndex === 4);
   const rescuedCount = Object.values(family).filter(f => f.rescued).length;
 
-  const canFinish =
-    isFinal
-      ? (rescuedCount === 3) // final level requires all rescues done
-      : (item === null);     // earlier levels require picking up the level item
+  let canFinish = true;
+
+  if (isFinal) {
+    canFinish = (rescuedCount === 3);
+  } else if (levelIndex === 0) {
+    // Level 1: require flashlight (if you keep it)
+    canFinish = (item === null);
+  } else if (levelRescueKey) {
+    canFinish = (family[levelRescueKey].rescued === true);
+  }
 
   if (rectsOverlap(pRect, goalZone) && canFinish) {
     running = false;
     btnNext.disabled = false;
     setButtons();
-
-    if (!isFinal) {
-      setMessage("Nice job!\nYou cleared the level.\nPress Next Level!");
-    } else {
-      setMessage("HOME!\nDad and Michael got everyone back safely!\nPress Next Level for the victory screen!");
-      btnNext.disabled = false;
-      setButtons();
-    }
+    setMessage("Nice job!\nYou made it HOME!\nPress Next Level!");
   } else if (rectsOverlap(pRect, goalZone) && !canFinish) {
-    // gentle hint
-    if (!isFinal && item) setMessage(`You need the ${item.label} first!`);
-    if (isFinal && rescuedCount < 3) setMessage("You must rescue Mom, Catalina, and Tinsley first!");
+    if (isFinal && rescuedCount < 3) setMessage("Rescue Mom, Catalina, and Tinsley first!");
+    else if (levelIndex === 0 && item) setMessage("Find the Flashlight first!");
+    else if (levelRescueKey && !family[levelRescueKey].rescued) setMessage("Rescue them first!");
   }
+}
+
+function getNpcSpriteKey(name) {
+  if (name === "mom") return "mom";
+  if (name === "catalina") return "catalina";
+  if (name === "tinsley") return "tinsley";
+  return null;
 }
 
 // --- Rendering ---
 function drawScene() {
   const theme = THEMES[levelIndex];
+
+   function getNpcSpriteKey(name) {
+  if (name === "mom") return "mom";
+  if (name === "catalina") return "catalina";
+  if (name === "tinsley") return "tinsley";
+  return null;
+}
 
   // background
   ctx.fillStyle = theme.bg;
@@ -772,7 +795,34 @@ if (item) {
   ctx.font = "700 12px system-ui";
   ctx.fillText(item.label, item.x - 6, item.y - 8);
 }
-   
+
+   // Rescue NPC (mom/catalina/tinsley)
+if (npc && npc.key) {
+  const spriteKey = getNpcSpriteKey(npc.key);
+  const img = spriteKey ? sprites[spriteKey] : null;
+
+  // fallback body
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.beginPath();
+  ctx.roundRect(npc.x, npc.y, npc.w, npc.h, 10);
+  ctx.fill();
+
+  // sprite image (if loaded)
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(npc.x, npc.y, npc.w, npc.h, 10);
+    ctx.clip();
+    ctx.drawImage(img, npc.x, npc.y, npc.w, npc.h);
+    ctx.restore();
+  }
+
+  // label
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.font = "800 10px system-ui";
+  ctx.fillText("RESCUE!", npc.x, npc.y - 6);
+}
+
 // Dad (buddy)
 drawCharacter(dad.x, dad.y, dad.w, dad.h, "#4fd1ff", "Dad");
 
@@ -866,6 +916,7 @@ function update(dt) {
   updateCheckpoints();
   updateHazards();
   updateItem();
+  updateNpcRescue();  // ✅ ADD THIS LINE
   updateMonster(dt);
   updateGoal();
 }
