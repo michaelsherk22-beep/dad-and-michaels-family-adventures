@@ -1,1 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dad and Michael's Family Adventures</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">
+      <h1>Dad and Michael’s Family Adventures</h1>
+      <p class="subtitle">Save Mom, Catalina, and Tinsley — escape Glue Glue Head and get home!</p>
+    </div>
+
+    <div class="hud">
+      <div id="hud-level">Level: 1</div>
+      <div id="hud-goal">Goal: Find the Flashlight</div>
+      <div id="hud-rescued">Rescued: 0/3</div>
+    </div>
+  </header>
+
+  <main class="stage">
+    <canvas id="game" width="960" height="540" aria-label="Game canvas"></canvas>
+
+    <section class="panel">
+      <div id="message" class="message"></div>
+
+      <div class="buttons">
+        <button id="btn-start">Start</button>
+        <button id="btn-retry">Retry</button>
+        <button id="btn-next">Next Level</button>
+      </div>
+
+      <div class="controls">
+        <div class="controls-title">Controls</div>
+        <div>Keyboard: <b>Arrow Keys</b> or <b>WASD</b></div>
+        <div>Mobile: use the on-screen D-pad below</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Mobile controls -->
+  <footer class="mobile-controls" aria-label="Mobile controls">
+    <button class="pad" data-dir="left">◀</button>
+    <button class="pad" data-dir="up">▲</button>
+    <button class="pad" data-dir="down">▼</button>
+    <button class="pad" data-dir="right">▶</button>
+  </footer>
+
+  <script src="game.js"></script>
+</body>
+</html>
 
