@@ -5,7 +5,10 @@
 */
 
 const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+if (!canvas) alert("No canvas with id='game' found");
+
+const ctx = canvas?.getContext("2d");
+if (!ctx) alert("Canvas context failed");
 
 const hudLevel = document.getElementById("hud-level");
 const hudGoal = document.getElementById("hud-goal");
