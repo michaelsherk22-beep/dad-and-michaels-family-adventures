@@ -726,8 +726,7 @@ function drawScene() {
   // door/home goal
 
    if (goalZone) {
-  const isHome = goalZone.label === "HOME";
-  const img = isHome ? sprites.home : null;
+  const img = sprites.home || null;
 
   if (img) {
     ctx.save();
@@ -777,7 +776,7 @@ function drawScene() {
 
  // item
 if (item) {
-  const img = (item.kind === "flashlight") ? sprites.flashlight : null;
+  item = { kind: "flashlight", label: "Flashlight", x: 700, y: 410, w: 32, h: 32 };
 
   if (img) {
     ctx.save();
