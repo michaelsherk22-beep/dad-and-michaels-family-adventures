@@ -220,130 +220,138 @@ goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
 setMessage("Level 2!\nFind Tinsley and rescue her, then go HOME!");
     }
   },
-  {
-    title: "Level 3 (Yellow): Catalina’s Maze",
-    goalText: "Goal: Rescue Catalina",
-    setup() {
-      resetPositions();
-      monster.active = true;
-      monster.angry = false;
+{
+  title: "Level 3 (Yellow): Catalina’s Maze",
+  goalText: "Goal: Rescue Catalina",
+  setup() {
+    resetPositions();
+    monster.active = true;
+    monster.angry = false;
 
-      checkpoints = [
-        { x: 90, y: 430, w: 80, h: 18 },
-        { x: 420, y: 430, w: 80, h: 18 },
-        { x: 720, y: 430, w: 80, h: 18 },
-      ];
+    checkpoints = [
+      { x: 90,  y: 430, w: 80, h: 18 },
+      { x: 360, y: 430, w: 80, h: 18 },
+      { x: 620, y: 430, w: 80, h: 18 },
+    ];
 
-      // a simple maze: thick walls, wide hallways
-      obstacles = [
-        // outer guides
-        { x: 140, y: 80, w: 10, h: 420 },
-        { x: 140, y: 80, w: 720, h: 10 },
-        { x: 850, y: 80, w: 10, h: 420 },
+    const wall = 10;
+    const leftX = 140;
+    const topY = 80;
 
-        // inside walls
-        { x: 220, y: 160, w: 500, h: 10 },
-        { x: 220, y: 160, w: 10, h: 250 },
-        { x: 300, y: 240, w: 420, h: 10 },
-        { x: 710, y: 240, w: 10, h: 210 },
-        { x: 380, y: 320, w: 250, h: 10 },
-      ];
+    // Right wall should be inside the canvas
+    const rightX = W - wall;         // 790 if W=800
+    const topW = rightX - leftX + wall; // spans from left to right
 
-      hazards = [
-        { x: 260, y: 480, w: 140, h: 20 },
-        { x: 520, y: 480, w: 140, h: 20 },
-      ];
+    obstacles = [
+      // outer guides (ALL fit inside canvas)
+      { x: leftX,  y: topY, w: wall, h: 420 },   // left wall
+      { x: leftX,  y: topY, w: topW, h: wall },  // top wall
+      { x: rightX, y: topY, w: wall, h: 420 },   // right wall
 
-     item = null;
-levelRescueKey = "catalina";
-npc = { x: 760, y: 110, w: 40, h: 40, key: levelRescueKey };
+      // inside walls (unchanged but safe)
+      { x: 220, y: 160, w: 500, h: 10 },
+      { x: 220, y: 160, w: 10,  h: 250 },
+      { x: 300, y: 240, w: 420, h: 10 },
+      { x: 710, y: 240, w: 10,  h: 210 },
+      { x: 380, y: 320, w: 250, h: 10 },
+    ];
 
-goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
-setMessage("Level 3!\nFind Catalina, rescue her, then go HOME!");
-    }
-  },
-  {
-    title: "Level 4 (Green): Elevator Escape (Rescue Mom)",
-    goalText: "Goal: Rescue Mom",
-    setup() {
-      resetPositions();
-      monster.active = true;
-      monster.angry = true;
+    hazards = [
+      { x: 260, y: 480, w: 140, h: 20 },
+      { x: 520, y: 480, w: 140, h: 20 },
+    ];
 
-      checkpoints = [
-        { x: 90, y: 430, w: 80, h: 18 },
-        { x: 420, y: 300, w: 80, h: 18 },
-        { x: 700, y: 160, w: 80, h: 18 },
-      ];
+    item = null;
 
-      // timed-ish paths using narrow gates
-      obstacles = [
-        { x: 190, y: 90, w: 20, h: 420 },
-        { x: 420, y: 0, w: 20, h: 260 },
-        { x: 420, y: 320, w: 20, h: 220 },
-        { x: 650, y: 90, w: 20, h: 360 },
-        { x: 740, y: 180, w: 120, h: 20 },
-      ];
+    levelRescueKey = "catalina";
+    npc = { x: W - 80, y: 110, w: 40, h: 40, key: levelRescueKey }; // 720 if W=800
 
-      hazards = [
-        { x: 260, y: 470, w: 120, h: 22 },
-        { x: 520, y: 470, w: 120, h: 22 },
-        { x: 780, y: 470, w: 120, h: 22 },
-      ];
+    goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
 
-      item = null;
-levelRescueKey = "mom";
-npc = { x: 800, y: 120, w: 40, h: 40, key: levelRescueKey };
-
-goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
-setMessage("Level 4!\nFind Mom, rescue her, then go HOME!");
-    }
-  },
-  {
-    title: "Level 5 (Blue/Purple): Run Home!",
-    goalText: "Goal: Get Home",
-    setup() {
-      resetPositions();
-      monster.active = true;
-      monster.angry = true;
-
-      checkpoints = [
-        { x: 90, y: 430, w: 80, h: 18 },
-        { x: 380, y: 430, w: 80, h: 18 },
-        { x: 660, y: 430, w: 80, h: 18 },
-        { x: 820, y: 260, w: 80, h: 18 },
-      ];
-
-      obstacles = [
-        // a fun zig-zag course
-        { x: 200, y: 120, w: 20, h: 380 },
-        { x: 340, y: 0, w: 20, h: 300 },
-        { x: 480, y: 240, w: 20, h: 300 },
-        { x: 620, y: 0, w: 20, h: 320 },
-        { x: 760, y: 220, w: 20, h: 320 },
-        // Wall top (leaves a gap in the middle)
-         { x: W - 90, y: 0, w: 10, h: 160 },
-      // Wall bottom
-      { x: W - 90, y: 260, w: 10, h: 280 },
-      ];
-
-      hazards = [
-        { x: 260, y: 470, w: 120, h: 22 },
-        { x: 520, y: 470, w: 120, h: 22 },
-        { x: 780, y: 470, w: 120, h: 22 },
-      ];
-
-      item = null;
-      levelRescueKey = null;
-
-      goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
-      setMessage(
-        "Final Level!\nRun home!\n" +
-        "If Glue Glue Head catches you, you pop back to the last checkpoint.\n" +
-        "You’ve got this!"
-      );
-    }
+    setMessage("Level 3!\nFind Catalina, rescue her, then go HOME!");
   }
+},{
+  title: "Level 4 (Green): Elevator Escape (Rescue Mom)",
+  goalText: "Goal: Rescue Mom",
+  setup() {
+    resetPositions();
+    monster.active = true;
+    monster.angry = true;
+
+    checkpoints = [
+      { x: 90,  y: 430, w: 80, h: 18 },
+      { x: 360, y: 300, w: 80, h: 18 },
+      { x: 620, y: 160, w: 80, h: 18 }, // moved left so it doesn't hug the edge
+    ];
+
+    obstacles = [
+      { x: 190, y: 90,  w: 20, h: 420 },
+      { x: 420, y: 0,   w: 20, h: 260 },
+      { x: 420, y: 320, w: 20, h: 220 },
+      { x: 650, y: 90,  w: 20, h: 360 },
+      { x: 740, y: 180, w: 50, h: 20 }, // was 120 wide; trimmed to stay inside
+    ];
+
+    hazards = [
+      { x: 260, y: 470, w: 120, h: 22 },
+      { x: 520, y: 470, w: 120, h: 22 },
+      { x: W - 140, y: 470, w: 120, h: 22 }, // ✅ stays inside
+    ];
+
+    item = null;
+    levelRescueKey = "mom";
+
+    npc = { x: W - 80, y: 120, w: 40, h: 40, key: levelRescueKey }; // ✅ visible
+
+    goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
+    setMessage("Level 4!\nFind Mom, rescue her, then go HOME!");
+  }
+},
+ {
+  title: "Level 5 (Blue/Purple): Run Home!",
+  goalText: "Goal: Get Home",
+  setup() {
+    resetPositions();
+    monster.active = true;
+    monster.angry = true;
+
+    checkpoints = [
+      { x: 90,  y: 430, w: 80, h: 18 },
+      { x: 320, y: 430, w: 80, h: 18 },
+      { x: 560, y: 430, w: 80, h: 18 },
+      { x: 680, y: 260, w: 80, h: 18 }, // ✅ was 820 (off-screen)
+    ];
+
+    obstacles = [
+      { x: 200, y: 120, w: 20, h: 380 },
+      { x: 340, y: 0,   w: 20, h: 300 },
+      { x: 480, y: 240, w: 20, h: 300 },
+      { x: 620, y: 0,   w: 20, h: 320 },
+      { x: 740, y: 220, w: 20, h: 320 }, // ✅ was 760; move left so it fits nicely
+
+      // Right-side split wall that leaves a gap (must be inside the canvas)
+      { x: W - 10, y: 0,   w: 10, h: 160 },
+      { x: W - 10, y: 260, w: 10, h: 280 },
+    ];
+
+    hazards = [
+      { x: 260, y: 470, w: 120, h: 22 },
+      { x: 520, y: 470, w: 120, h: 22 },
+      { x: W - 140, y: 470, w: 120, h: 22 }, // ✅ was 780 (off-screen)
+    ];
+
+    item = null;
+    levelRescueKey = null;
+
+    goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
+
+    setMessage(
+      "Final Level!\nRun home!\n" +
+      "If Glue Glue Head catches you, you pop back to the last checkpoint.\n" +
+      "You’ve got this!"
+    );
+  }
+},
 ];
 
 function resetPositions() {
