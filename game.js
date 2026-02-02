@@ -148,8 +148,6 @@ let levelRescueKey = null;  // which rescue is required this level
 let obstacles = [];         // walls / blockers
 let hazards = [];           // goo puddles (touch = reset)
 let checkpoints = [];       // checkpoint pads
-let levelRescueKey = null;      // <-- add
-let levelRescueKey = null;    // you already have this, keep it
 
 const LEVELS = [
   {
@@ -177,7 +175,7 @@ const LEVELS = [
       item = { kind:"flashlight", label:"Flashlight", x: W - 70, y: H - 90, w: 32, h: 32 };
       levelRescueKey = null;
 
-      goalZone = { x: 860, y: 400, w: 70, h: 90, label: "Home" };
+      goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
       setMessage(
         "Welcome!\n" +
         "You are Michael (5) and Dad is with you.\n" +
@@ -214,7 +212,7 @@ const LEVELS = [
 levelRescueKey = "tinsley";
 npc = { x: 740, y: 260, w: 40, h: 40, key: levelRescueKey };
 
-goalZone = { x: 860, y: 240, w: 80, h: 120, label: "HOME" };
+goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
 setMessage("Level 2!\nFind Tinsley and rescue her, then go HOME!");
     }
   },
@@ -293,7 +291,7 @@ setMessage("Level 3!\nFind Catalina, rescue her, then go HOME!");
 levelRescueKey = "mom";
 npc = { x: 800, y: 120, w: 40, h: 40, key: levelRescueKey };
 
-goalZone = { x: 860, y: 90, w: 80, h: 140, label: "HOME" };
+goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
 setMessage("Level 4!\nFind Mom, rescue her, then go HOME!");
     }
   },
@@ -334,8 +332,7 @@ setMessage("Level 4!\nFind Mom, rescue her, then go HOME!");
       item = null;
       levelRescueKey = null;
 
-      goalZone = { x: 880, y: 40, w: 70, h: 150, label: "HOME" };
-
+      goalZone = { x: W - 90, y: 60, w: 70, h: 90, label: "HOME" };
       setMessage(
         "Final Level!\nRun home!\n" +
         "If Glue Glue Head catches you, you pop back to the last checkpoint.\n" +
