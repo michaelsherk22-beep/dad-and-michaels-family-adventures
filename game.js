@@ -3,6 +3,10 @@
    - Simple top-down "obby + chase" in canvas
    - Glue Glue Head chases slowly; touching a hazard resets to checkpoint
 */
+console.log("game.js loaded ✅");
+window.onerror = (msg, src, line, col, err) => {
+  console.log("JS ERROR ❌", msg, "at", line + ":" + col, src);
+};
 
 const canvas = document.getElementById("game");
 if (!canvas) alert("No canvas with id='game' found");
@@ -318,9 +322,9 @@ setMessage("Level 4!\nFind Mom, rescue her, then go HOME!");
         { x: 620, y: 0, w: 20, h: 320 },
         { x: 760, y: 220, w: 20, h: 320 },
         // Wall top (leaves a gap in the middle)
-         { x: 860, y: 0, w: 10, h: 160 },
+         { x: W - 90, y: 0, w: 10, h: 160 },
       // Wall bottom
-      { x: 860, y: 260, w: 10, h: 280 },
+      { x: W - 90, y: 260, w: 10, h: 280 },
       ];
 
       hazards = [
