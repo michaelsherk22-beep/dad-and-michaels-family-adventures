@@ -775,10 +775,13 @@ function drawScene() {
 if (item) {
   const img = (item.kind === "flashlight") ? sprites.flashlight : null;
 
-  // fallback
-  ctx.fillStyle = "rgba(255,255,255,0.18)";
-  ctx.fillRect(item.x, item.y, item.w, item.h);
+  // fallback body
+  ctx.fillStyle = theme.accent;
+  ctx.beginPath();
+  ctx.roundRect(item.x, item.y, item.w, item.h, 8);
+  ctx.fill();
 
+  // sprite image (if loaded)
   if (img) {
     ctx.save();
     ctx.beginPath();
@@ -788,6 +791,7 @@ if (item) {
     ctx.restore();
   }
 
+  // label
   ctx.fillStyle = "rgba(0,0,0,0.65)";
   ctx.font = "700 12px system-ui";
   ctx.fillText(item.label, item.x - 6, item.y - 8);
