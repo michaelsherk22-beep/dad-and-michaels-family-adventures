@@ -57,6 +57,10 @@ async function preloadSprites() {
 
   spritesReady = true;
 
+   console.log("Sprite load check:",
+  Object.fromEntries(Object.entries(sprites).map(([k,v]) => [k, !!v]))
+);
+
   const failed = results.filter(r => !r.ok).map(r => `${r.key}: ${ART[r.key]}`);
   if (failed.length) {
     setMessage(
@@ -169,7 +173,7 @@ const LEVELS = [
       hazards = []; // none in level 1
 
       item = { kind: "flashlight", label: "Flashlight", x: 700, y: 410, w: 32, h: 32 };
-      rescueTarget = null;
+      - rescueTarget = null;
 
       goalZone = { x: 860, y: 400, w: 70, h: 90, label: "Home" };
       setMessage(
@@ -683,13 +687,6 @@ function updateGoal() {
   }
 }
 
-function getNpcSpriteKey(name) {
-  if (name === "mom") return "mom";
-  if (name === "catalina") return "catalina";
-  if (name === "tinsley") return "tinsley";
-  return null;
-}
-
 // --- Rendering ---
 function drawScene() {
   const theme = THEMES[levelIndex];
@@ -774,9 +771,13 @@ function drawScene() {
     ctx.strokeRect(hz.x, hz.y, hz.w, hz.h);
   }
 
- // item
+// item (flashlight)
 if (item) {
-  item = { kind: "flashlight", label: "Flashlight", x: 700, y: 410, w: 32, h: 32 };
+  const img = (item.kind === "flashlight") ? sprites.flashlight : null;
+
+  // fallback
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.fillRect(item.x, item.y, item.w, item.h);
 
   if (img) {
     ctx.save();
@@ -785,9 +786,6 @@ if (item) {
     ctx.clip();
     ctx.drawImage(img, item.x, item.y, item.w, item.h);
     ctx.restore();
-  } else {
-    ctx.fillStyle = theme.accent;
-    ctx.fillRect(item.x, item.y, item.w, item.h);
   }
 
   ctx.fillStyle = "rgba(0,0,0,0.65)";
